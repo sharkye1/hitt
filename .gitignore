@@ -1,0 +1,47 @@
+# Игнорировать пользовательский файл сохранения (содержит баланс, инвентарь)
+ --- IGNORE ---
+savegame.dat
+
+# Кэш Python и виртуальное окружение
+ --- IGNORE ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+venv.bak/
+.venv/
+
+# Папки и файлы IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Файлы ОС
+.DS_Store
+Thumbs.db
+
+# Логи
+*.log
+
+# Файлы баз данных
+*.db
+*.sqlite
+*.sqlite3
+
+# pytest
+.pytest_cache/
+
+# node
+node_modules/
+
+# Секретные файлы окружения 
+.env
+
+# Игнорировать любые локальные файлы данных
+local_*.json
+
+# Оставить в отслеживании data/presets.py — здесь должны жить общие кейсы событий
