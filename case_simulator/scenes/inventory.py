@@ -260,7 +260,11 @@ class InventoryScene(Scene):
                                 it, cnt = ordered[idx]
                                 sell_price = int(it.price * 0.8)
                                 # confirm
-                                confirm = self.console.read_input(f"Продать {it.name} за {sell_price}? (y/n): ").strip().lower()
+                                # allow single-key confirmation (y/n) without Enter
+                                try:
+                                    confirm = self.console.read_key(f"Продать {it.name} за {sell_price}? (y/n): ").strip().lower()
+                                except Exception:
+                                    confirm = self.console.read_input(f"Продать {it.name} за {sell_price}? (y/n): ").strip().lower()
                                 if confirm == "y":
                                     ok = self.state.inventory.remove_item(it, qty=1)
                                     if ok:

@@ -33,7 +33,11 @@ class CaseOpeningScene(Scene):
             self.console.write_line("Q - Назад")
             self.console.write_empty_line()
 
-            choice = self.console.read_input("Выберите кейс для открытия (Q - назад): ").strip()
+            # Try single-key selection for convenience
+            try:
+                choice = self.console.read_key("Выберите кейс для открытия (Q - назад): ").strip()
+            except Exception:
+                choice = self.console.read_input("Выберите кейс для открытия (Q - назад): ").strip()
             # Поддерживаем как 'q'/'Q', так и старый вариант '0' для совместимости
             if choice.lower() == "q" or choice == "0":
                 return "menu"
@@ -130,7 +134,11 @@ class CaseOpeningScene(Scene):
         self.console.write_empty_line()
 
         while True:
-            action = self.console.read_input("Ваш выбор: ")
+            # allow single-key press (no Enter) for faster UX
+            try:
+                action = self.console.read_key("Ваш выбор: ").strip()
+            except Exception:
+                action = self.console.read_input("Ваш выбор: ").strip()
             if action == "1":
                 self.state.inventory.add_item(winner, 1)
                 self.console.write_line("Предмет добавлен в инвентарь.")

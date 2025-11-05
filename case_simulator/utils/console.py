@@ -25,6 +25,41 @@ class Console:
     def read_input(self, prompt: str = "") -> str:
         return input(prompt)
 
+    def read_key(self, prompt: str = "") -> str:
+        """Read a single keypress from the user (no Enter required).
+
+        Returns the single character as a string. Works on Windows and Unix-like.
+        Echoes a newline after the key so subsequent output appears on next line.
+        """
+        try:
+            if os.name == "nt":
+                import msvcrt
+                print(prompt, end="", flush=True)
+                ch = msvcrt.getch()
+                # msvcrt.getch returns bytes
+                try:
+                    s = ch.decode("utf-8")
+                except Exception:
+                    s = chr(ord(ch))
+                print()
+                return s
+            else:
+                import tty
+                import termios
+                print(prompt, end="", flush=True)
+                fd = sys.stdin.fileno()
+                old_settings = termios.tcgetattr(fd)
+                try:
+                    tty.setraw(fd)
+                    ch = sys.stdin.read(1)
+                    print()
+                    return ch
+                finally:
+                    termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        except (EOFError, KeyboardInterrupt):
+            print()
+            sys.exit(0)
+
     def wait_for_key(self, message: str | None = None) -> None:
         """Wait for Enter or Escape key press."""
         prompt = message or "Нажмите Enter или Esc для продолжения..."

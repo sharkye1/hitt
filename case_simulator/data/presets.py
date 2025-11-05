@@ -23,37 +23,6 @@ KNIFE_RUSTY = Item(id="knife_rusty", name="Кухонный нож", price=250, 
 KNIFE_LEGEND = Item(id="knife_legend", name="Легендарный нож", price=8000, category="knife", rare=10)
 
 
-# Новые кейсы по категориям: пистолеты, винтовки, AWP и нож-кейс
-PISTOL_CASE = Case(
-    id="pistol_case",
-    name="Pistol Case",
-    price=120,
-    items=(PISTOL_MK1, PISTOL_MK2, PISTOL_MK3),
-)
-
-RIFLE_CASE = Case(
-    id="rifle_case",
-    name="Rifle Case",
-    price=400,
-    items=(RIFLE_BASIC, RIFLE_PRO),
-)
-
-AWP_CASE = Case(
-    id="awp_case",
-    name="AWP Case",
-    price=2500,
-    items=(AWP_LEGEND, RIFLE_PRO),
-)
-
-# Нож-кейс — очень дорогой и почти неокупаемый по задумке
-KNIFE_CASE = Case(
-    id="knife_case",
-    name="Knife Case",
-    price=10000,
-    items=(KNIFE_LEGEND, KNIFE_RUSTY),
-)
-
-
 # Коллекции предметов и кейсов — удобно итерации и быстрый доступ по id
 # Дополнительные дорогие предметы (много штук): пистолеты, USP, Deagle, мини/обычные дробаши, винтовки, AWP-ы и ножи
 PISTOL_USP = Item(id="usp_standard", name="USP Standard", price=1200, category="pistol", rare=5)
@@ -109,7 +78,20 @@ KNIFE_PAPER = Item(id="knife_paper", name="Paper Knife", price=40, category="kni
 KNIFE_PLASTIC = Item(id="knife_plastic", name="Plastic Knife", price=45, category="knife", rare=1)
 KNIFE_CHEAP_FIXED = Item(id="knife_cheap_fixed", name="Cheap Fixed Knife", price=60, category="knife", rare=2)
 
+KAI_BOOTS = Item(id="kai_boots", name="Kai's Boots", price=1860, category="boots", rare=44)
+MICE_PANTS = Item(id="mice_pants", name="Mice's Pants", price=1691, category="pants", rare=9)
+VIPERR_TOUR_SHIRT1 = Item(id="viperr_tour_shirt_1", name="VIPERR Tour Тишка №1", price=3500, category="shirt", rare=15)
+VIPERR_TOUR_SHIRT2 = Item(id="viperr_tour_shirt_2", name="VIPERR Tour Тишка №2", price=3500, category="shirt", rare=15)
+VIPERR_TOUR_SHIRT3 = Item(id="viperr_tour_shirt_3", name="VIPERR Tour Тишка №3", price=3500, category="shirt", rare=15)
+
 ITEMS = (
+    # уникальные шмотки
+    KAI_BOOTS,
+    MICE_PANTS,
+    VIPERR_TOUR_SHIRT1,
+    VIPERR_TOUR_SHIRT2,
+    VIPERR_TOUR_SHIRT3,
+
     # cheap tier
     PISTOL_BASIC_CHEAP,
     PISTOL_TRAINER,
@@ -163,10 +145,22 @@ ITEMS = (
     KNIFE_SHADOW,
     KNIFE_CERAMIC,
 )
-CASES = (PISTOL_CASE, RIFLE_CASE, AWP_CASE, KNIFE_CASE)
+
+VIPERR_CASE = Case(
+    id="viperr_case",
+    name="VIPERR Case",
+    price=3500,
+    items=(
+        KAI_BOOTS,
+        MICE_PANTS
+    ),
+)
+
+
 
 # Переопределяем (перераспределяем) содержимое кейсов, чтобы внутри каждого был
 # сбалансированный набор: много бюджетных/частых + несколько редких дорогих.
+
 PISTOL_CASE = Case(
     id="pistol_case",
     name="Pistol Case",
@@ -236,7 +230,12 @@ KNIFE_CASE = Case(
     ),
 )
 
-CASES = (PISTOL_CASE, RIFLE_CASE, AWP_CASE, KNIFE_CASE)
+CASES = (PISTOL_CASE, 
+         RIFLE_CASE, 
+         AWP_CASE, 
+         KNIFE_CASE, 
+         VIPERR_CASE)
+
 
 # Быстрый доступ по id
 ITEMS_BY_ID = {it.id: it for it in ITEMS}
@@ -293,16 +292,30 @@ SHOP_STOCK: формируется автоматически из списка 
 """
 
 SHOP_STOCK: dict[str, dict] = {}
+
+# Контроль: какие кейсы можно продавать в магазине.
+# Если множество пустое, поведение по умолчанию — добавить все кейсы.
+SELLABLE_CASE_IDS: set[str] = set()
+
 for c in CASES:
+    if SELLABLE_CASE_IDS and c.id not in SELLABLE_CASE_IDS:
+        # пропускаем кейсы, которые не в белом списке
+        continue
     SHOP_STOCK[c.id] = {"type": "case", "price": c.price, "stock": None}
 
-# Переопределения/ограничения (сохраняем предыдущую логику)
-if "rifle_case" in SHOP_STOCK:
-    SHOP_STOCK["rifle_case"]["stock"] = 5
-if "awp_case" in SHOP_STOCK:
-    SHOP_STOCK["awp_case"]["stock"] = 1
-if "knife_case" in SHOP_STOCK:
-    SHOP_STOCK["knife_case"]["stock"] = 1
+# Контроль: какие отдельные предметы можно продавать в магазине.
+# По умолчанию разрешаем только VIPERR Tour shirts — перечислите здесь id,
+# которые вы хотите сделать доступными как отдельные товары.
+SELLABLE_ITEM_IDS: set[str] = {
+    "viperr_tour_shirt_1",
+    "viperr_tour_shirt_2",
+    "viperr_tour_shirt_3",
+}
+
+# Добавляем в магазин только те предметы из ITEMS, которые попали в whitelist.
+for it in ITEMS:
+    if it.id in SELLABLE_ITEM_IDS and it.id not in SHOP_STOCK:
+        SHOP_STOCK[it.id] = {"type": "item", "price": it.price, "stock": None}
 
 
 # Параметры кривой выпадения (используются при выборе предмета из кейса)

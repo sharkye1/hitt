@@ -20,7 +20,11 @@ class MainMenuScene(Scene):
             self.console.write_line("0. Выход")
             self.console.write_empty_line()
 
-            choice = self.console.read_input("Выберите режим: ")
+            # Try single-key entry for faster navigation (no Enter required)
+            try:
+                choice = self.console.read_key("Выберите режим: ").strip()
+            except Exception:
+                choice = self.console.read_input("Выберите режим: ")
 
             if choice == "1":
                 return "case_opening"

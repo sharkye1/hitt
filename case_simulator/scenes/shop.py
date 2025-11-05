@@ -41,13 +41,48 @@ class ShopScene(Scene):
             self.console.write_line("  Формат: C1 или I2 (например C1 купить кейс #1).")
             self.console.write_line("  B - пополнить баланс, q - назад в меню")
 
-            choice = self.console.read_input("Ваш выбор: ").strip()
-            if not choice:
+            # Try single-key entry first (for selecting numbered cases quickly).
+            # If the key is a letter command like 'C' or 'I', read the rest of the
+            # line with read_input so the user can type 'C1' or 'I2' and press Enter.
+            try:
+                first = self.console.read_key("Ваш выбор: ")
+            except Exception:
+                first = self.console.read_input("Ваш выбор: ")
+            if first is None:
+                first = ""
+            first = first.strip()
+            if not first:
                 continue
-            if choice.lower() == "q":
+
+            # Quit/top-up
+            if first.lower() == "q":
                 return "menu"
-            if choice.upper() == "B":
+            if first.upper() == "B":
                 self._top_up()
+                continue
+
+            choice = None
+            # If first char is a letter command that expects a number (C/I),
+            # read the rest of the line to allow 'C1' typed then Enter.
+            if len(first) == 1 and first.upper() in ("C", "I"):
+                rest = ""
+                try:
+                    # read_input will consume the rest of the line (if the user
+                    # typed 'C1' and pressed Enter, this returns '1') or block
+                    # for further input.
+                    rest = self.console.read_input("")
+                except Exception:
+                    rest = ""
+                choice = (first + (rest or "")).strip()
+            else:
+                # If user pressed a digit (single-key), treat as quick case selection;
+                # otherwise use the full token entered.
+                if len(first) == 1 and first.isdigit():
+                    choice = first
+                else:
+                    choice = first
+
+            if not choice:
                 continue
 
             # Parse purchase
