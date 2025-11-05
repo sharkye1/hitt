@@ -30,11 +30,12 @@ class CaseOpeningScene(Scene):
             # Список кейсов
             for idx, (case, count) in enumerate(cases, start=1):
                 self.console.write_line(f"{idx}. {case.name} (x{count}) — цена {case.price}")
-            self.console.write_line("0. Назад")
+            self.console.write_line("Q - Назад")
             self.console.write_empty_line()
 
-            choice = self.console.read_input("Выберите кейс для открытия: ")
-            if choice == "0":
+            choice = self.console.read_input("Выберите кейс для открытия (Q - назад): ").strip()
+            # Поддерживаем как 'q'/'Q', так и старый вариант '0' для совместимости
+            if choice.lower() == "q" or choice == "0":
                 return "menu"
             if not choice.isdigit():
                 self.console.write_line("Введите номер из списка.")
@@ -109,7 +110,7 @@ class CaseOpeningScene(Scene):
         total_steps = len(items) * 2 + win_index  # пару полных кругов + финиш на призе
 
         # Параметры замедления
-        delay = 0.5 # начальная задержка
+        delay = 0.2  # начальная задержка
         delay_growth = 1.5  # множитель замедления
 
         for step in range(total_steps):
@@ -122,8 +123,8 @@ class CaseOpeningScene(Scene):
         self.console.write_empty_line()
         self.console.write_line(f"Выпало: {winner.name} (стоимость {winner.price})")
 
-        # Предложение: оставить или продать за 80%
-        sell_price = int(winner.price * 0.8)
+        # Предложение: оставить или продать за 88%
+        sell_price = int(winner.price * 0.88)
         self.console.write_line(f"1. Оставить (в инвентарь)")
         self.console.write_line(f"2. Продать за {sell_price}")
         self.console.write_empty_line()

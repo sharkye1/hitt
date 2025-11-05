@@ -7,20 +7,20 @@ from case_simulator.models.inventory import Inventory
 
 # Примеры предметов — расширенные: несколько пистолетов, винтовок, AWP и редкий нож
 # Пистолеты (более частые)
-PISTOL_MK1 = Item(id="pistol_mk1", name="Pistol Mk1", price=100, category="pistol", rare=1)
-PISTOL_MK2 = Item(id="pistol_mk2", name="Pistol Mk2", price=140, category="pistol", rare=1)
-PISTOL_MK3 = Item(id="pistol_mk3", name="Pistol Mk3", price=180, category="pistol", rare=2)
+PISTOL_MK1 = Item(id="pistol_mk1", name="Пистол мк1", price=100, category="pistol", rare=1)
+PISTOL_MK2 = Item(id="pistol_mk2", name="Пистол мк2", price=140, category="pistol", rare=1)
+PISTOL_MK3 = Item(id="pistol_mk3", name="Пистол мк3", price=180, category="pistol", rare=2)
 
 # Винтовки (реже и дороже)
-RIFLE_BASIC = Item(id="rifle_basic", name="Rifle Basic", price=450, category="rifle", rare=3)
-RIFLE_PRO = Item(id="rifle_pro", name="Rifle Pro", price=650, category="rifle", rare=4)
+RIFLE_BASIC = Item(id="rifle_basic", name="Винтовка Базовая", price=450, category="rifle", rare=3)
+RIFLE_PRO = Item(id="rifle_pro", name="Винтовка Про", price=650, category="rifle", rare=4)
 
 # AWP — очень редкий и дорогой снайперский ски
-AWP_LEGEND = Item(id="awp_legend", name="AWP Legend", price=3000, category="sniper", rare=8)
+AWP_LEGEND = Item(id="awp_legend", name="AWP Легенда", price=3000, category="sniper", rare=8)
 
 # Ножи: один дешёвый и один легендарный (для knife-case)
-KNIFE_RUSTY = Item(id="knife_rusty", name="Rusty Knife", price=250, category="knife", rare=2)
-KNIFE_LEGEND = Item(id="knife_legend", name="Legendary Knife", price=8000, category="knife", rare=10)
+KNIFE_RUSTY = Item(id="knife_rusty", name="Кухонный нож", price=250, category="knife", rare=2)
+KNIFE_LEGEND = Item(id="knife_legend", name="Легендарный нож", price=8000, category="knife", rare=10)
 
 
 # Новые кейсы по категориям: пистолеты, винтовки, AWP и нож-кейс
@@ -55,7 +55,77 @@ KNIFE_CASE = Case(
 
 
 # Коллекции предметов и кейсов — удобно итерации и быстрый доступ по id
+# Дополнительные дорогие предметы (много штук): пистолеты, USP, Deagle, мини/обычные дробаши, винтовки, AWP-ы и ножи
+PISTOL_USP = Item(id="usp_standard", name="USP Standard", price=1200, category="pistol", rare=5)
+PISTOL_USP_SILVER = Item(id="usp_silver", name="USP Silver", price=1800, category="pistol", rare=6)
+PISTOL_USP_GOLD = Item(id="usp_gold", name="USP Gold", price=3200, category="pistol", rare=8)
+
+DEAGLE_BASIC = Item(id="deagle_basic", name="Desert Eagle", price=900, category="pistol", rare=5)
+DEAGLE_GOLD = Item(id="deagle_gold", name="Desert Eagle Gold", price=2400, category="pistol", rare=7)
+DEAGLE_ELITE = Item(id="deagle_elite", name="Desert Eagle Elite", price=4200, category="pistol", rare=9)
+
+PISTOL_1911 = Item(id="pistol_1911", name="1911 Classic", price=800, category="pistol", rare=4)
+PISTOL_PREMIUM = Item(id="pistol_premium", name="Premium Pistol", price=1500, category="pistol", rare=6)
+
+# Мини-дробаши
+MINI_SG1 = Item(id="mini_sg1", name="Mini Shotgun I", price=700, category="shotgun", rare=4)
+MINI_SG2 = Item(id="mini_sg2", name="Mini Shotgun II", price=1200, category="shotgun", rare=5)
+
+# Обычные дробаши
+SG_BASIC = Item(id="sg_basic", name="Shotgun Basic", price=1500, category="shotgun", rare=6)
+SG_HEAVY = Item(id="sg_heavy", name="Shotgun Heavy", price=2600, category="shotgun", rare=7)
+
+# Новые винтовки
+RIFLE_ELITE = Item(id="rifle_elite", name="Rifle Elite", price=1200, category="rifle", rare=5)
+RIFLE_PREMIUM = Item(id="rifle_premium", name="Rifle Premium", price=2200, category="rifle", rare=7)
+RIFLE_SUPER = Item(id="rifle_super", name="Rifle Super", price=4800, category="rifle", rare=10)
+AK47_GOLD = Item(id="ak47_gold", name="AK-47 Gold", price=9000, category="rifle", rare=12)
+
+# AWP-варинты
+AWP_GOLD = Item(id="awp_gold", name="AWP Gold", price=5000, category="sniper", rare=12)
+AWP_DRAGON = Item(id="awp_dragon", name="AWP Dragon", price=12000, category="sniper", rare=15)
+
+# Множество ножей — дорогие
+KNIFE_TACTICAL = Item(id="knife_tactical", name="Tactical Knife", price=9000, category="knife", rare=11)
+KNIFE_BUTTERFLY = Item(id="knife_butterfly", name="Butterfly Knife", price=18000, category="knife", rare=18)
+KNIFE_OBSIDIAN = Item(id="knife_obsidian", name="Obsidian Knife", price=20000, category="knife", rare=20)
+KNIFE_SHADOW = Item(id="knife_shadow", name="Shadow Knife", price=15000, category="knife", rare=16)
+KNIFE_CERAMIC = Item(id="knife_ceramic", name="Ceramic Knife", price=12000, category="knife", rare=14)
+
+# Добавим всё в коллекцию ITEMS
+# Cheap / budget-tier items (named variables so we can reference them in cases)
+PISTOL_BASIC_CHEAP = Item(id="pistol_basic_cheap", name="Pistol Basic Cheap", price=50, category="pistol", rare=1)
+PISTOL_TRAINER = Item(id="pistol_trainer", name="Pistol Trainer", price=60, category="pistol", rare=1)
+USP_BUDGET = Item(id="usp_budget", name="USP Budget", price=70, category="pistol", rare=1)
+DEAGLE_OLD = Item(id="deagle_old", name="Deagle Old", price=80, category="pistol", rare=2)
+POCKET_1911 = Item(id="pocket_1911", name="Pocket 1911", price=55, category="pistol", rare=1)
+MINI_SHOT_CHEAP = Item(id="mini_shot_cheap", name="Mini Shotgun Cheap", price=90, category="shotgun", rare=1)
+BUCK_SHOT = Item(id="buck_shot", name="Buck Shot", price=85, category="shotgun", rare=1)
+RIFLE_WOOD = Item(id="rifle_wood", name="Rifle Wood", price=95, category="rifle", rare=2)
+RIMFIRE = Item(id="rimfire", name="Rimfire", price=110, category="rifle", rare=2)
+POCKET_AWM = Item(id="pocket_awm", name="Pocket AWM", price=130, category="sniper", rare=3)
+# cheap knives
+KNIFE_PAPER = Item(id="knife_paper", name="Paper Knife", price=40, category="knife", rare=1)
+KNIFE_PLASTIC = Item(id="knife_plastic", name="Plastic Knife", price=45, category="knife", rare=1)
+KNIFE_CHEAP_FIXED = Item(id="knife_cheap_fixed", name="Cheap Fixed Knife", price=60, category="knife", rare=2)
+
 ITEMS = (
+    # cheap tier
+    PISTOL_BASIC_CHEAP,
+    PISTOL_TRAINER,
+    USP_BUDGET,
+    DEAGLE_OLD,
+    POCKET_1911,
+    MINI_SHOT_CHEAP,
+    BUCK_SHOT,
+    RIFLE_WOOD,
+    RIMFIRE,
+    POCKET_AWM,
+    KNIFE_PAPER,
+    KNIFE_PLASTIC,
+    KNIFE_CHEAP_FIXED,
+
+    # original items and mid/high tier
     PISTOL_MK1,
     PISTOL_MK2,
     PISTOL_MK3,
@@ -64,7 +134,108 @@ ITEMS = (
     AWP_LEGEND,
     KNIFE_RUSTY,
     KNIFE_LEGEND,
+    # pistols
+    PISTOL_USP,
+    PISTOL_USP_SILVER,
+    PISTOL_USP_GOLD,
+    DEAGLE_BASIC,
+    DEAGLE_GOLD,
+    DEAGLE_ELITE,
+    PISTOL_1911,
+    PISTOL_PREMIUM,
+    # shotguns
+    MINI_SG1,
+    MINI_SG2,
+    SG_BASIC,
+    SG_HEAVY,
+    # rifles
+    RIFLE_ELITE,
+    RIFLE_PREMIUM,
+    RIFLE_SUPER,
+    AK47_GOLD,
+    # awps
+    AWP_GOLD,
+    AWP_DRAGON,
+    # knives
+    KNIFE_TACTICAL,
+    KNIFE_BUTTERFLY,
+    KNIFE_OBSIDIAN,
+    KNIFE_SHADOW,
+    KNIFE_CERAMIC,
 )
+CASES = (PISTOL_CASE, RIFLE_CASE, AWP_CASE, KNIFE_CASE)
+
+# Переопределяем (перераспределяем) содержимое кейсов, чтобы внутри каждого был
+# сбалансированный набор: много бюджетных/частых + несколько редких дорогих.
+PISTOL_CASE = Case(
+    id="pistol_case",
+    name="Pistol Case",
+    price=120,
+    items=(
+        PISTOL_BASIC_CHEAP,
+        PISTOL_TRAINER,
+        POCKET_1911,
+        PISTOL_MK1,
+        PISTOL_MK2,
+        PISTOL_MK3,
+        PISTOL_1911,
+        USP_BUDGET,
+        PISTOL_USP,
+        DEAGLE_BASIC,
+        DEAGLE_OLD,
+        PISTOL_PREMIUM,
+    ),
+)
+
+RIFLE_CASE = Case(
+    id="rifle_case",
+    name="Rifle Case",
+    price=400,
+    items=(
+        RIFLE_WOOD,
+        RIMFIRE,
+        RIFLE_BASIC,
+        RIFLE_PRO,
+        RIFLE_ELITE,
+        RIFLE_PREMIUM,
+        SG_BASIC,
+        SG_HEAVY,
+    ),
+)
+
+AWP_CASE = Case(
+    id="awp_case",
+    name="AWP Case",
+    price=2500,
+    items=(
+        POCKET_AWM,
+        AWP_LEGEND,
+        AWP_GOLD,
+        AWP_DRAGON,
+        RIFLE_SUPER,
+        AK47_GOLD,
+        PISTOL_PREMIUM,
+    ),
+)
+
+KNIFE_CASE = Case(
+    id="knife_case",
+    name="Knife Case",
+    price=10000,
+    items=(
+        KNIFE_PAPER,
+        KNIFE_PLASTIC,
+        KNIFE_CHEAP_FIXED,
+        KNIFE_RUSTY,
+        KNIFE_TACTICAL,
+        KNIFE_LEGEND,
+        KNIFE_BUTTERFLY,
+        KNIFE_OBSIDIAN,
+        KNIFE_SHADOW,
+        KNIFE_CERAMIC,
+    ),
+)
+
 CASES = (PISTOL_CASE, RIFLE_CASE, AWP_CASE, KNIFE_CASE)
 
 # Быстрый доступ по id
@@ -114,16 +285,24 @@ FREE_PRESET_CASES: dict[str, int] = {
 # Примечание: эта структура хранится как константа в коде; уменьшение stock при
 # покупках происходит в памяти во время выполнения процесса. Если нужно
 # персистировать остатки магазина, потребуется сохранить их в файле/БД.
-SHOP_STOCK: dict[str, dict] = {
-    # Основные кейсы в магазине
-    "pistol_case": {"type": "case", "price": 120, "stock": None},
-    "rifle_case": {"type": "case", "price": 400, "stock": 5},
-    "awp_case": {"type": "case", "price": 2500, "stock": 1},
-    # Нож-кейс очень дорогой и редкий
-    "knife_case": {"type": "case", "price": 10000, "stock": 1},
+"""
+SHOP_STOCK: формируется автоматически из списка `CASES`.
+По умолчанию каждый case появляется в магазине с ценой, указанной в объекте Case,
+и неограниченным запасом (stock=None). Здесь мы накладываем несколько явных
+переопределений для редких/ограниченных кейсов.
+"""
 
-    # некоторые предметы можно добавить сюда при необходимости
-}
+SHOP_STOCK: dict[str, dict] = {}
+for c in CASES:
+    SHOP_STOCK[c.id] = {"type": "case", "price": c.price, "stock": None}
+
+# Переопределения/ограничения (сохраняем предыдущую логику)
+if "rifle_case" in SHOP_STOCK:
+    SHOP_STOCK["rifle_case"]["stock"] = 5
+if "awp_case" in SHOP_STOCK:
+    SHOP_STOCK["awp_case"]["stock"] = 1
+if "knife_case" in SHOP_STOCK:
+    SHOP_STOCK["knife_case"]["stock"] = 1
 
 
 # Параметры кривой выпадения (используются при выборе предмета из кейса)

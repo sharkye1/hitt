@@ -41,6 +41,16 @@ class Inventory:
             return True
         return False
 
+    def remove_item(self, item: Item, qty: int = 1) -> bool:
+        """Удалить указанное количество предметов из инвентаря. Возвращает True при успехе."""
+        if qty <= 0:
+            return True
+        current = self.item_counts.get(item.id, 0)
+        if current >= qty:
+            self.item_counts[item.id] = current - qty
+            return True
+        return False
+
     # --- Чтение ---
     def get_items(self) -> List[Tuple[Item, int]]:
         result: List[Tuple[Item, int]] = []

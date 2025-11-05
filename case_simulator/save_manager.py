@@ -102,10 +102,15 @@ class SaveManager:
 
     def _create_fresh_state(self) -> GameState:
         """Создать стартовое состояние с примерами."""
+        # Создаём каталог предметов/кейсов, но не выдаём никаких предметов по умолчанию.
+        # Это позволяет иметь пустой инвентарь, но при этом регистрация всех
+        # типов предметов/кейсов доступна для кода (например, для магазина/инвентаря).
         inventory = presets.create_sample_inventory()
 
-        # На чистой установке выдаём всем пресетам/кейсам из FREE_PRESET_CASES
-        # их стартовые количества и помечаем их как выданные.
+        # При первом запуске выдаём игроку несколько стартовых (дешёвых)
+        # кейсов, чтобы у него было с чем играть. Сопоставление
+        # FREE_PRESET_CASES описывает, какие кейсы и в каких
+        # количествах должны быть выданы один раз при появлении пресета.
         granted: list[str] = []
         for pid, qty in presets.FREE_PRESET_CASES.items():
             case_obj = inventory.case_catalog.get(pid)
@@ -113,10 +118,11 @@ class SaveManager:
                 inventory.add_case(case_obj, qty=qty)
                 granted.append(pid)
 
-        state = GameState(inventory=inventory, balance=0, granted_presets=granted)
+        # Начальный баланс — 500 (как запросил пользователь)
+        state = GameState(inventory=inventory, balance=500, granted_presets=granted)
 
-        # Сохраняем сразу, чтобы у пользователя появился файл сохранения
-        # с пометкой, что стартовые пресеты уже выданы.
+        # Сохраняем сразу, чтобы при следующем запуске этот начальный файл
+        # считался существующим и не перегенерировал стартовые пресеты.
         self.save(state)
         return state
 

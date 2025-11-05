@@ -39,12 +39,12 @@ class ShopScene(Scene):
             self.console.write_empty_line()
             self.console.write_line("Выберите то, что хотите купить:")
             self.console.write_line("  Формат: C1 или I2 (например C1 купить кейс #1).")
-            self.console.write_line("  B - пополнить баланс, Q - назад в меню")
+            self.console.write_line("  B - пополнить баланс, q - назад в меню")
 
             choice = self.console.read_input("Ваш выбор: ").strip()
             if not choice:
                 continue
-            if choice.upper() == "Q":
+            if choice.lower() == "q":
                 return "menu"
             if choice.upper() == "B":
                 self._top_up()
