@@ -16,6 +16,7 @@ class MainMenuScene(Scene):
             self.console.write_line("1. Открытие кейсов")
             self.console.write_line("2. Крафт предметов")
             self.console.write_line("3. Магазин")
+            self.console.write_line("4. Инвентарь")
             self.console.write_line("0. Выход")
             self.console.write_empty_line()
 
@@ -27,6 +28,8 @@ class MainMenuScene(Scene):
                 return "crafting"
             if choice == "3":
                 return "shop"
+            if choice == "4":
+                return "inventory"
             if choice == "0":
                 return None
 
