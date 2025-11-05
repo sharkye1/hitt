@@ -5,44 +5,81 @@ from case_simulator.models.case import Case
 from case_simulator.models.inventory import Inventory
 
 
-# Примеры предметов
-PISTOL_MK1 = Item(id="pistol_mk1", name="Pistol Mk1", price=100, category="weapon", rare=1)
+# Примеры предметов — расширенные: несколько пистолетов, винтовок, AWP и редкий нож
+# Пистолеты (более частые)
+PISTOL_MK1 = Item(id="pistol_mk1", name="Pistol Mk1", price=100, category="pistol", rare=1)
+PISTOL_MK2 = Item(id="pistol_mk2", name="Pistol Mk2", price=140, category="pistol", rare=1)
+PISTOL_MK3 = Item(id="pistol_mk3", name="Pistol Mk3", price=180, category="pistol", rare=2)
+
+# Винтовки (реже и дороже)
+RIFLE_BASIC = Item(id="rifle_basic", name="Rifle Basic", price=450, category="rifle", rare=3)
+RIFLE_PRO = Item(id="rifle_pro", name="Rifle Pro", price=650, category="rifle", rare=4)
+
+# AWP — очень редкий и дорогой снайперский ски
+AWP_LEGEND = Item(id="awp_legend", name="AWP Legend", price=3000, category="sniper", rare=8)
+
+# Ножи: один дешёвый и один легендарный (для knife-case)
 KNIFE_RUSTY = Item(id="knife_rusty", name="Rusty Knife", price=250, category="knife", rare=2)
-RIFLE_PRO = Item(id="rifle_pro", name="Rifle Pro", price=500, category="weapon", rare=3)
-SHOTGUN_HEAVY = Item(id="shotgun_heavy", name="Shotgun Heavy", price=450, category="weapon", rare=4)
-ULTIMATE_SWORD = Item(id="ultimate_sword", name="Ultimate Sword", price=1000, category="melee", rare=5)
+KNIFE_LEGEND = Item(id="knife_legend", name="Legendary Knife", price=8000, category="knife", rare=10)
 
 
-# Примеры кейсов (каждый содержит по паре предметов)
-STARTER_CASE = Case(
-    id="starter_case",
-    name="Starter Case",
-    price=150,
-    items=(PISTOL_MK1, KNIFE_RUSTY),
+# Новые кейсы по категориям: пистолеты, винтовки, AWP и нож-кейс
+PISTOL_CASE = Case(
+    id="pistol_case",
+    name="Pistol Case",
+    price=120,
+    items=(PISTOL_MK1, PISTOL_MK2, PISTOL_MK3),
 )
 
-PRO_CASE = Case(
-    id="pro_case",
-    name="Pro Case",
+RIFLE_CASE = Case(
+    id="rifle_case",
+    name="Rifle Case",
     price=400,
-    items=(RIFLE_PRO, SHOTGUN_HEAVY),
+    items=(RIFLE_BASIC, RIFLE_PRO),
 )
 
-ULTIMATE_CASE = Case(
-    id="ultimate_case",
-    name="Ultimate Case",
-    price=1000,
-    items=(PISTOL_MK1, KNIFE_RUSTY, RIFLE_PRO, SHOTGUN_HEAVY, ULTIMATE_SWORD)
+AWP_CASE = Case(
+    id="awp_case",
+    name="AWP Case",
+    price=2500,
+    items=(AWP_LEGEND, RIFLE_PRO),
 )
+
+# Нож-кейс — очень дорогой и почти неокупаемый по задумке
+KNIFE_CASE = Case(
+    id="knife_case",
+    name="Knife Case",
+    price=10000,
+    items=(KNIFE_LEGEND, KNIFE_RUSTY),
+)
+
+
+# Коллекции предметов и кейсов — удобно итерации и быстрый доступ по id
+ITEMS = (
+    PISTOL_MK1,
+    PISTOL_MK2,
+    PISTOL_MK3,
+    RIFLE_BASIC,
+    RIFLE_PRO,
+    AWP_LEGEND,
+    KNIFE_RUSTY,
+    KNIFE_LEGEND,
+)
+CASES = (PISTOL_CASE, RIFLE_CASE, AWP_CASE, KNIFE_CASE)
+
+# Быстрый доступ по id
+ITEMS_BY_ID = {it.id: it for it in ITEMS}
+CASES_BY_ID = {c.id: c for c in CASES}
 
 
 def create_sample_inventory() -> Inventory:
     inv = Inventory()
 
     # Зарегистрируем шаблоны (на будущее, если добавятся новые дропы)
-    for item in (PISTOL_MK1, KNIFE_RUSTY, RIFLE_PRO, SHOTGUN_HEAVY, ULTIMATE_SWORD):
+    # используем коллекции выше, чтобы не перечислять вручную
+    for item in ITEMS:
         inv.register_item(item)
-    for case in (STARTER_CASE, PRO_CASE, ULTIMATE_CASE):
+    for case in CASES:
         inv.register_case(case)
     
     # NOTE: Не добавляем стартовые количества кейсов здесь. Стартовые/подарочные
@@ -51,8 +88,6 @@ def create_sample_inventory() -> Inventory:
 
     # Мы храним пару стартовых предметов в каталоге, но не мутируем
     # постоянные количества здесь (так что предоставление может быть выполнено в одном месте).
-    inv.register_item(PISTOL_MK1)
-    inv.register_item(KNIFE_RUSTY)
 
     return inv
 
@@ -62,9 +97,9 @@ def create_sample_inventory() -> Inventory:
 # новые бесплатные/промо-кейсы в репозиторий. SaveManager гарантирует, что каждый
 # id из этого сопоставления будет добавлен в инвентарь игрока не более одного раза.
 FREE_PRESET_CASES: dict[str, int] = {
-    # existing starter freebies
-    "starter_case": 2,
-    "pro_case": 1,
+    # бесплатные пресеты: даём новичкам несколько пистолетных кейсов и один ружейный
+    "pistol_case": 2,
+    "rifle_case": 1,
 }
 
 
@@ -80,14 +115,14 @@ FREE_PRESET_CASES: dict[str, int] = {
 # покупках происходит в памяти во время выполнения процесса. Если нужно
 # персистировать остатки магазина, потребуется сохранить их в файле/БД.
 SHOP_STOCK: dict[str, dict] = {
-    # продаём также оба стартовых кейса — starter бесплатен для новых игроков, но
-    # также может продаваться в магазине (например, для дополнительных копий)
-    "starter_case": {"type": "case", "price": 120, "stock": None},
-    "pro_case": {"type": "case", "price": 380, "stock": 5},
-    "ultimate_case": {"type": "case", "price": 1000, "stock": 1},
+    # Основные кейсы в магазине
+    "pistol_case": {"type": "case", "price": 120, "stock": None},
+    "rifle_case": {"type": "case", "price": 400, "stock": 5},
+    "awp_case": {"type": "case", "price": 2500, "stock": 1},
+    # Нож-кейс очень дорогой и редкий
+    "knife_case": {"type": "case", "price": 10000, "stock": 1},
 
-    # некоторые предметы в магазине
-    
+    # некоторые предметы можно добавить сюда при необходимости
 }
 
 
