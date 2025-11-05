@@ -6,6 +6,7 @@ from case_simulator.scenes.base import Scene
 from case_simulator.scenes.case_opening import CaseOpeningScene
 from case_simulator.scenes.crafting import CraftingScene
 from case_simulator.scenes.main_menu import MainMenuScene
+from case_simulator.scenes.shop import ShopScene
 from case_simulator.utils.console import Console
 from case_simulator.state import GameState
 from case_simulator.save_manager import SaveManager
@@ -25,6 +26,7 @@ class CaseSimulatorApp:
             "menu": MainMenuScene(self.console, self.state),
             "case_opening": CaseOpeningScene(self.console, self.state),
             "crafting": CraftingScene(self.console, self.state),
+            "shop": ShopScene(self.console, self.state),
         }
 
     def run(self) -> None:
