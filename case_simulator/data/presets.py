@@ -40,11 +40,11 @@ def create_sample_inventory() -> Inventory:
     inv = Inventory()
 
     # Зарегистрируем шаблоны (на будущее, если добавятся новые дропы)
-    for item in (PISTOL_MK1, KNIFE_RUSTY, RIFLE_PRO, SHOTGUN_HEAVY):
+    for item in (PISTOL_MK1, KNIFE_RUSTY, RIFLE_PRO, SHOTGUN_HEAVY, ULTIMATE_SWORD):
         inv.register_item(item)
-    for case in (STARTER_CASE, PRO_CASE):
+    for case in (STARTER_CASE, PRO_CASE, ULTIMATE_CASE):
         inv.register_case(case)
-
+    
     # NOTE: Не добавляем стартовые количества кейсов здесь. Стартовые/подарочные
     # контролируются FREE_PRESET_CASES (ниже) и предоставляются
     # SaveManager при создании нового сохранения или при появлении новых пресетов.
@@ -89,3 +89,14 @@ SHOP_STOCK: dict[str, dict] = {
     # некоторые предметы в магазине
     
 }
+
+
+# Параметры кривой выпадения (используются при выборе предмета из кейса)
+# DROP_RARE_POWER: чем больше значение, тем сильнее различие между
+# common и rare — редкие предметы становятся ещё реже.
+# DROP_MIN_WEIGHT: нижняя граница веса предмета (чтобы шанс никогда не был нулевым).
+# DROP_WEIGHT_MULTIPLIER: глобальный множитель весов (удобно для быстрого масштабирования).
+# Формула используемая в сцене открытия: weight = max(DROP_MIN_WEIGHT, (1.0 if rare<=0 else 1.0 / (rare ** DROP_RARE_POWER)) * DROP_WEIGHT_MULTIPLIER)
+DROP_RARE_POWER: float = 1.5
+DROP_MIN_WEIGHT: float = 0.0005
+DROP_WEIGHT_MULTIPLIER: float = 1.0

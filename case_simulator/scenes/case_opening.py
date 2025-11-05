@@ -7,6 +7,7 @@ from typing import Optional, List, Tuple
 from case_simulator.scenes.base import Scene
 from case_simulator.models.case import Case
 from case_simulator.models.item import Item
+from case_simulator.data import presets
 
 
 class CaseOpeningScene(Scene):
@@ -77,7 +78,34 @@ class CaseOpeningScene(Scene):
             return
 
         # Выберем приз заранее и построим анимацию с замедлением
-        win_index = random.randrange(len(items))
+        # Взвешенный выбор: используем параметры из `presets.py` чтобы
+        # сделать редкие предметы ещё реже, но при этом не допустить нулевых шансов.
+        # Формула: raw = 1 / (rare ** power)  (rare>0), raw=1 для rare<=0
+        # weight = max(DROP_MIN_WEIGHT, raw * DROP_WEIGHT_MULTIPLIER)
+        weights: List[float] = []
+        power = getattr(presets, "DROP_RARE_POWER", 1.0)
+        min_w = getattr(presets, "DROP_MIN_WEIGHT", 1e-6)
+        mult = getattr(presets, "DROP_WEIGHT_MULTIPLIER", 1.0)
+
+        for it in items:
+            try:
+                r = float(getattr(it, "rare", 0) or 0)
+            except Exception:
+                r = 0.0
+            if r <= 0:
+                raw = 1.0
+            else:
+                raw = 1.0 / (r ** float(power))
+            w = max(float(min_w), float(raw) * float(mult))
+            weights.append(w)
+
+        # random.choices поддерживает взвешенный выбор (Python 3.6+).
+        try:
+            winner = random.choices(items, weights=weights, k=1)[0]
+            win_index = items.index(winner)
+        except Exception:
+            # Фоллбек на равновероятный выбор
+            win_index = random.randrange(len(items))
         total_steps = len(items) * 2 + win_index  # пару полных кругов + финиш на призе
 
         # Параметры замедления
