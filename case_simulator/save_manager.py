@@ -31,6 +31,8 @@ class SaveManager:
             # (чтобы при появлении новых пресетов в репозитории не выдавать
             # их повторно одному и тому же игроку).
             "granted_presets": getattr(state, "granted_presets", []),
+            # Per-instance qualities for items (id -> list of floats)
+            "item_qualities": getattr(state.inventory, "item_qualities", {}),
         }
         json_str = json.dumps(data, ensure_ascii=False, indent=2)
         
@@ -58,6 +60,7 @@ class SaveManager:
             # Накатываем сохраненные количества (если игрок когда-то что-то менял)
             inventory.item_counts = data.get("item_counts", {})
             inventory.case_counts = data.get("case_counts", {})
+            inventory.item_qualities = data.get("item_qualities", {})
 
             # Сохранившиеся пресеты, которые уже выдавали игроку
             granted: list[str] = data.get("granted_presets", [])

@@ -5,6 +5,7 @@ from typing import Iterable, List, Optional, Tuple
 from case_simulator.scenes.base import Scene
 from case_simulator.data import presets
 from case_simulator.models.item import Item
+from case_simulator.utils.pricing import price_multiplier
 
 
 class InventoryScene(Scene):
@@ -35,7 +36,6 @@ class InventoryScene(Scene):
         cat_w = max((len(str(it.category)) for it in items), default=8)
         rare_w = max((len(str(it.rare)) for it in items), default=4)
         price_w = max((len(str(it.price)) for it in items), default=5)
-
         hdr = f"{'ID'.ljust(id_w)} | {'Name'.ljust(name_w)} | {'Category'.ljust(cat_w)} | {'Rare'.rjust(rare_w)} | {'Price'.rjust(price_w)}"
         sep = f"{'-' * id_w}-+-{'-' * name_w}-+-{'-' * cat_w}-+-{'-' * rare_w}-+-{'-' * price_w}"
         self.console.write_line(hdr)
@@ -100,8 +100,20 @@ class InventoryScene(Scene):
                     self.console.write_line(hdr)
                     self.console.write_line(sep)
                     for it, cnt in sorted_items:
+                        # Determine adjusted price from stored qualities (if any)
+                        qlist = self.state.inventory.get_item_qualities(it.id)
+                        if qlist:
+                            # pick best adjusted price to display
+                            best_q = max(qlist)
+                            mult = price_multiplier(best_q)
+                            adj = int(round(it.price * mult))
+                            q_txt = f"{best_q:.6f}"
+                            adj_txt = str(adj).rjust(price_w)
+                        else:
+                            q_txt = "-"
+                            adj_txt = str(it.price).rjust(price_w)
                         self.console.write_line(
-                            f"{str(it.price).rjust(price_w)} | {str(cnt).rjust(cnt_w)} | {str(it.name).ljust(name_w)} | {str(it.id).ljust(id_w)}"
+                            f"{adj_txt} | {str(cnt).rjust(cnt_w)} | {str(it.name).ljust(name_w)} | {str(it.id).ljust(id_w)}  q:{q_txt}"
                         )
                 # help for advanced items
                 self.console.write_line("")
@@ -140,8 +152,18 @@ class InventoryScene(Scene):
                     self.console.write_line(hdr)
                     self.console.write_line(sep)
                     for it, cnt in owned_sorted:
+                        qlist = self.state.inventory.get_item_qualities(it.id)
+                        if qlist:
+                            best_q = max(qlist)
+                            mult = price_multiplier(best_q)
+                            adj = int(round(it.price * mult))
+                            q_txt = f"{best_q:.6f}"
+                            adj_txt = str(adj).rjust(price_w)
+                        else:
+                            q_txt = "-"
+                            adj_txt = str(it.price).rjust(price_w)
                         self.console.write_line(
-                            f"{str(it.price).rjust(price_w)} | {str(cnt).rjust(cnt_w)} | {str(it.name).ljust(name_w)} | {str(it.id).ljust(id_w)}"
+                            f"{str(it.price).rjust(price_w)} | {str(cnt).rjust(cnt_w)} | {str(it.name).ljust(name_w)} | {str(it.id).ljust(id_w)}  => {adj_txt} q:{q_txt}"
                         )
                 self.console.write_line("")
                 self.console.write_line("[A] Открыть продвинутый режим")
@@ -244,32 +266,54 @@ class InventoryScene(Scene):
                             self.console.write_line("У вас нет предметов для продажи.")
                             self.console.wait_for_key()
                         else:
-                            # Determine which list is being shown and compute ordering
+                            # Build the list of display rows that match what's shown
+                            display_rows: List[Tuple[str, str, int, int, float | None]] = []
+                            # Each row: (item_id, name, base_price, adj_price, quality_or_None)
+
+                            # Determine ordering as shown on screen
                             if view_mode == "simple":
                                 ordered = sorted(owned_list, key=lambda ic: ic[0].price)
                             else:
-                                # advanced_items uses category filter and sort_field
                                 cat = self.ITEM_CATEGORIES[category_idx]
                                 filtered = [(it, cnt) for it, cnt in owned_list if cat == "all" or it.category == cat]
                                 ordered = sorted(filtered, key=lambda ic: getattr(ic[0], sort_field), reverse=sort_reverse)
 
-                            if idx < 0 or idx >= len(ordered):
+                            # Expand ordered into rows: if item has per-instance qualities,
+                            # show each quality as a separate row. Otherwise show an aggregated row.
+                            for it, cnt in ordered:
+                                qlist = self.state.inventory.get_item_qualities(it.id)
+                                if qlist:
+                                    # show each instance separately
+                                    for q in qlist:
+                                        mult = price_multiplier(q)
+                                        adj = int(round(it.price * mult))
+                                        display_rows.append((it.id, it.name, it.price, adj, float(q)))
+                                else:
+                                    # aggregated row
+                                    display_rows.append((it.id, it.name, it.price, it.price, None))
+
+                            if idx < 0 or idx >= len(display_rows):
                                 self.console.write_line("Нет такого номера предмета.")
                                 self.console.wait_for_key()
                             else:
-                                it, cnt = ordered[idx]
-                                sell_price = int(it.price * 0.8)
+                                item_id, name, base_price, adj_price, qual = display_rows[idx]
+                                sell_price = int(adj_price * 0.8)
+
                                 # confirm
-                                # allow single-key confirmation (y/n) without Enter
                                 try:
-                                    confirm = self.console.read_key(f"Продать {it.name} за {sell_price}? (y/n): ").strip().lower()
+                                    confirm = self.console.read_key(f"Продать {name} (qual={qual if qual is not None else '-'} ) за {sell_price}? (y/n): ").strip().lower()
                                 except Exception:
-                                    confirm = self.console.read_input(f"Продать {it.name} за {sell_price}? (y/n): ").strip().lower()
+                                    confirm = self.console.read_input(f"Продать {name} (qual={qual if qual is not None else '-'} ) за {sell_price}? (y/n): ").strip().lower()
                                 if confirm == "y":
-                                    ok = self.state.inventory.remove_item(it, qty=1)
+                                    if qual is None:
+                                        # remove generic copy
+                                        ok = self.state.inventory.remove_item(self.state.inventory.item_catalog[item_id], qty=1)
+                                    else:
+                                        ok = self.state.inventory.remove_item_by_quality(item_id, float(qual))
+
                                     if ok:
                                         self.state.add_balance(sell_price)
-                                        self.console.write_line(f"Продано: {it.name}. Баланс: {self.state.balance}")
+                                        self.console.write_line(f"Продано: {name}. Баланс: {self.state.balance}")
                                     else:
                                         self.console.write_line("Не удалось продать: недостаточно штук.")
                                     self.console.wait_for_key()

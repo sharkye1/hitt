@@ -8,6 +8,9 @@ from case_simulator.scenes.base import Scene
 from case_simulator.models.case import Case
 from case_simulator.models.item import Item
 from case_simulator.data import presets
+from case_simulator.utils.pricing import price_multiplier
+from case_simulator.utils.quality import gen_quality
+import math
 
 
 class CaseOpeningScene(Scene):
@@ -125,10 +128,18 @@ class CaseOpeningScene(Scene):
 
         winner = items[win_index]
         self.console.write_empty_line()
-        self.console.write_line(f"Выпало: {winner.name} (стоимость {winner.price})")
 
-        # Предложение: оставить или продать за 88%
-        sell_price = int(winner.price * 0.88)
+        # Генерируем качество предмета (6 знаков после запятой, в диапазоне [0.0, 1.0))
+        q = self._gen_quality()
+
+        # Рассчитываем множитель цены по качеству и итоговую цену предмета
+        multiplier = price_multiplier(q)
+        adj_price = max(1, int(round(winner.price * multiplier)))
+
+        self.console.write_line(f"Выпало: {winner.name} (качество {q:.6f}, базовая цена {winner.price}, скорр. цена {adj_price})")
+
+        # Предложение: оставить или продать за 88% от скорректированной цены
+        sell_price = int(adj_price * 0.88)
         self.console.write_line(f"1. Оставить (в инвентарь)")
         self.console.write_line(f"2. Продать за {sell_price}")
         self.console.write_empty_line()
@@ -140,7 +151,17 @@ class CaseOpeningScene(Scene):
             except Exception:
                 action = self.console.read_input("Ваш выбор: ").strip()
             if action == "1":
-                self.state.inventory.add_item(winner, 1)
+                # Сохраняем предмет в инвентарь как экземпляр с конкретным quality
+                # Создаём новый объект Item-экземпляр, но не перезаписываем каталог
+                inst = Item(
+                    id=winner.id,
+                    name=winner.name,
+                    price=winner.price,
+                    category=winner.category,
+                    rare=winner.rare,
+                    quality=q,
+                )
+                self.state.inventory.add_item(inst, 1, quality=q)
                 self.console.write_line("Предмет добавлен в инвентарь.")
                 break
             if action == "2":
@@ -149,6 +170,70 @@ class CaseOpeningScene(Scene):
                 break
             self.console.write_line("Введите 1 или 2.")
 
-        self.console.write_empty_line()
-        self.console.wait_for_key("Нажмите Enter или Esc для возврата к списку кейсов...")
+            self.console.write_empty_line()
+            self.console.wait_for_key("Нажмите Enter или Esc для возврата к списку кейсов...")
+
+    # --- quality & pricing helpers ---
+    def _gen_quality(self) -> float:
+        # Delegate to shared generator for consistency with simulations
+        return gen_quality()
+
+    def _price_multiplier(self, q: float) -> float:
+        """Сопоставление качества q с множителем цены согласно настроенным уровням.
+        q: float в диапазоне [0.0, 1.0)        
+        """
+        # Safety clamp
+        q = max(0.0, min(q, 0.999999))
+
+        # Below 0.5: linear from 0.4 -> 0.65 at 0.5
+        # Ниже 0.5: линейно от 0.4 до 0.65 при 0.5
+        if q < 0.5:
+            return 0.4 + (0.65 - 0.4) * (q / 0.5)
+
+        # 0.5 .. 0.75: linear 0.65 -> 0.75
+        # 0.5 .. 0.75: линейно от 0.65 до 0.75
+        if q < 0.75:
+            return 0.65 + (0.75 - 0.65) * ((q - 0.5) / 0.25)
+
+        # 0.75 .. 0.9: linear 0.75 -> 1.0
+        # 0.75 .. 0.9: линейно от 0.75 до 1.0
+        if q < 0.9:
+            return 0.75 + (1.0 - 0.75) * ((q - 0.75) / 0.15)
+
+        # Anchors for >0.9 progression
+        # Привязки для прогрессии >0.9
+        anchors = [
+            (0.9, 1.0),
+            (0.91, 1.05),
+            (0.93, 1.30),
+            (0.95, 1.70),
+            (0.99, 3.00),
+            (0.9950, 5.00),
+        ]
+
+        # between 0.9 and 0.995: linear interpolate between anchors
+        # между 0.9 и 0.995: линейная интерполяция между привязками
+        for i in range(len(anchors) - 1):
+            x0, m0 = anchors[i]
+            x1, m1 = anchors[i + 1]
+            if x0 <= q < x1:
+                t = (q - x0) / (x1 - x0)
+                return m0 + (m1 - m0) * t
+
+        # 0.9950 < q <= 0.9989 -> fixed 8.0 (800%) according to spec
+        # 0.9950 < q <= 0.9989 -> фиксированное значение 8.0 (800%) согласно спецификации
+        if q <= 0.9989:
+            if q > 0.9950:
+                return 8.0
+
+        # q >= 0.9990 -> progressive per-0.0001 increments starting at 10.0
+        # q >= 0.9990 -> прогрессивные приращения по 0.0001, начиная с 10.0
+        if q >= 0.9990:
+            # number of steps of 0.0001 above 0.9990
+            steps = (q - 0.9990) / 0.0001
+            return 10.0 + steps
+
+        # fallback: if q in small gap between 0.9989 and 0.9990, return 8.0
+        # запасной вариант: если q в небольшом промежутке между 0.9989 и 0.9990, вернуть 8.0
+        return 8.0
     

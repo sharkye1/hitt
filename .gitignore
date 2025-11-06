@@ -27,6 +27,9 @@ Thumbs.db
 # Логи
 *.log
 
+# Документация
+WARP.md
+
 # Файлы баз данных
 *.db
 *.sqlite
@@ -56,3 +59,4 @@ reports/**
 tests/
 tools/
 scripts/
+

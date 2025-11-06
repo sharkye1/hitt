@@ -24,7 +24,7 @@ class ShopScene(Scene):
             self.console.write_line("Кейсы:")
             for idx, (case_id, case, price, stock) in enumerate(cases, start=1):
                 stock_text = f" [{stock} в наличии]" if isinstance(stock, int) else ""
-                self.console.write_line(f"  C{idx}. {case.name} (id={case_id}) — {price} монет{stock_text}")
+                self.console.write_line(f"  C{idx}. {case.name} — {price} монет{stock_text}")
             if not cases:
                 self.console.write_line("  (нет доступных кейсов)")
 
