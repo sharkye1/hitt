@@ -10,6 +10,7 @@ from case_simulator.models.item import Item
 from case_simulator.data import presets
 from case_simulator.utils.pricing import price_multiplier
 from case_simulator.utils.quality import gen_quality
+import sys
 import math
 
 
@@ -114,20 +115,47 @@ class CaseOpeningScene(Scene):
         except Exception:
             # Фоллбек на равновероятный выбор
             win_index = random.randrange(len(items))
-        total_steps = len(items) * 2 + win_index  # пару полных кругов + финиш на призе
+        total_steps = min(len(items) * 2 + win_index, 25)
 
-        # Параметры замедления
-        delay = 0.2  # начальная задержка
-        delay_growth = 1.5  # множитель замедления
+        # Анимация: показываем сменяющиеся элементы в одной строке.
+        # Требование: между 1-м и 2-м показом очень мало (~0.05s),
+        # между 2-м и 3-м чуть больше, а финальные паузы — около 0.6–0.8s.
+        start_delay = 0.05
+        final_delay = 0.6 + random.random() * 0.2  # 0.6 .. 0.8
+
+        # Подготовим паддинг, чтобы очистить предыдущую надпись при переписывании
+        display_texts = [f"→ {it.name}" for it in items]
+        max_len = max(len(t) for t in display_texts)
 
         for step in range(total_steps):
             current = items[step % len(items)]
-            self.console.write_line(f"→ {current.name}")
+            text = f"→ {current.name}"
+            padded = text + " " * (max_len - len(text))
+
+            # t in [0,1) progress through animation; use eased (quadratic) curve
+            # t принадлежит [0,1) прогресс через анимацию; используем квадратичную кривую
+            t = step / max(1, total_steps - 1)
+            # возрастающая квадратичная кривая для замедления в конце
+            delay = start_delay + (final_delay - start_delay) * (t * t)
+
+            
+            try:
+                sys.stdout.write("\r" + padded)
+                sys.stdout.flush()
+            except Exception:
+                # fallback to printing new line if direct stdout write fails
+                self.console.write_line(padded)
+
             time.sleep(delay)
-            delay = min(delay * delay_growth, 0.45)
+
+        # окончание анимации — переведём курсор на новую строку
+        try:
+            sys.stdout.write("\n")
+            sys.stdout.flush()
+        except Exception:
+            self.console.write_empty_line()
 
         winner = items[win_index]
-        self.console.write_empty_line()
 
         # Генерируем качество предмета (6 знаков после запятой, в диапазоне [0.0, 1.0))
         q = self._gen_quality()
@@ -186,17 +214,14 @@ class CaseOpeningScene(Scene):
         q = max(0.0, min(q, 0.999999))
 
         # Below 0.5: linear from 0.4 -> 0.65 at 0.5
-        # Ниже 0.5: линейно от 0.4 до 0.65 при 0.5
         if q < 0.5:
             return 0.4 + (0.65 - 0.4) * (q / 0.5)
 
         # 0.5 .. 0.75: linear 0.65 -> 0.75
-        # 0.5 .. 0.75: линейно от 0.65 до 0.75
         if q < 0.75:
             return 0.65 + (0.75 - 0.65) * ((q - 0.5) / 0.25)
 
         # 0.75 .. 0.9: linear 0.75 -> 1.0
-        # 0.75 .. 0.9: линейно от 0.75 до 1.0
         if q < 0.9:
             return 0.75 + (1.0 - 0.75) * ((q - 0.75) / 0.15)
 
@@ -213,7 +238,7 @@ class CaseOpeningScene(Scene):
 
         # between 0.9 and 0.995: linear interpolate between anchors
         # между 0.9 и 0.995: линейная интерполяция между привязками
-        for i in range(len(anchors) - 1):
+        for i in range(len(anchors) - 1):   
             x0, m0 = anchors[i]
             x1, m1 = anchors[i + 1]
             if x0 <= q < x1:
