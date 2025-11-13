@@ -261,6 +261,39 @@ KNIFE_CASE = Case(
     ),
 )
 
+# Дополнительные пакеты: два бюджетных кейса и два дорогих кейса с "крутыми" предметами
+# Budget Case 1: набор дешёвых и частых предметов — хорош для новичков / подарков
+BUDGET_CASE_1 = Case(
+    id="budget_case_1",
+    name="Budget Case Alpha",
+    price=199,
+    items=(PISTOL_BASIC_CHEAP, PISTOL_TRAINER, USP_BUDGET, KNIFE_PAPER, MINI_SHOT_CHEAP, BUCK_SHOT),
+)
+
+# Budget Case 2: ещё один лёгкий набор
+BUDGET_CASE_2 = Case(
+    id="budget_case_2",
+    name="Budget Case Beta",
+    price=299,
+    items=(POCKET_1911, DEAGLE_OLD, PISTOL_1911, KNIFE_PLASTIC, MINI_SG1),
+)
+
+# Legendary Case 1: дорогой кейс с топовыми M4A1 и ножами
+LEGENDARY_CASE_1 = Case(
+    id="legendary_case_1",
+    name="Legendary Arsenal",
+    price=120000,
+    items=(M4A1_TRANSCENDENT, M4A1_DIVINE, M4A1_INFINITY, M4A1_OMEGA, M4A1_GALAXY, KNIFE_OBSIDIAN, KNIFE_BUTTERFLY),
+)
+
+# Legendary Case 2: дорогой кейс с топовыми AK/AWP и редкими ножами
+LEGENDARY_CASE_2 = Case(
+    id="legendary_case_2",
+    name="Mythic Vault",
+    price=95000,
+    items=(AK47_PHANTASMAGORIA, AK47_PLASMAPHONIA, AK47_CELESTIAL, AWP_ORTEGA, KNIFE_LEGEND, KNIFE_TACTICAL),
+)
+
 _cases_list = [PISTOL_CASE, RIFLE_CASE, AWP_CASE, KNIFE_CASE, VIPERR_CASE]
 _m4 = globals().get("M4A1_CASE")
 if _m4 is not None:
@@ -268,6 +301,8 @@ if _m4 is not None:
 _a47 = globals().get("AK47_CASE")
 if _a47 is not None:
     _cases_list.append(_a47)
+# Добавляем наши новые кейсы в общий список
+_cases_list.extend([BUDGET_CASE_1, BUDGET_CASE_2, LEGENDARY_CASE_1, LEGENDARY_CASE_2])
 
 CASES = tuple(_cases_list)
 del _cases_list

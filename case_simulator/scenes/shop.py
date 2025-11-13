@@ -127,6 +127,8 @@ class ShopScene(Scene):
             price = meta.get("price", case.price)
             stock = meta.get("stock")
             result.append((obj_id, case, price, stock))
+        # Сортируем кейсы от дешёвых к дорогим по цене в магазине
+        result.sort(key=lambda x: x[2])
         return result
 
     def _list_items(self) -> List[Tuple[str, Item, int, Any]]:

@@ -36,7 +36,7 @@ class InventoryScene(Scene):
         cat_w = max((len(str(it.category)) for it in items), default=8)
         rare_w = max((len(str(it.rare)) for it in items), default=4)
         price_w = max((len(str(it.price)) for it in items), default=5)
-        hdr = f"{'ID'.ljust(id_w)} | {'Name'.ljust(name_w)} | {'Category'.ljust(cat_w)} | {'Rare'.rjust(rare_w)} | {'Price'.rjust(price_w)}"
+        hdr = f"{'ID'.ljust(id_w)} | {'Название'.ljust(name_w)} | {'Категория'.ljust(cat_w)} | {'Редкость'.rjust(rare_w)} | {'Цена'.rjust(price_w)}"
         sep = f"{'-' * id_w}-+-{'-' * name_w}-+-{'-' * cat_w}-+-{'-' * rare_w}-+-{'-' * price_w}"
         self.console.write_line(hdr)
         self.console.write_line(sep)
@@ -95,7 +95,7 @@ class InventoryScene(Scene):
                     name_w = max((len(str(it.name)) for it, _ in sorted_items), default=4)
                     id_w = max((len(str(it.id)) for it, _ in sorted_items), default=2)
 
-                    hdr = f"{'Price'.rjust(price_w)} | {'Qty'.rjust(cnt_w)} | {'Name'.ljust(name_w)} | {'ID'.ljust(id_w)}"
+                    hdr = f"{'Цена'.rjust(price_w)} | {'Кол-во'.rjust(cnt_w)} | {'Название'.ljust(name_w)} | {'ID'.ljust(id_w)}"
                     sep = f"{'-' * price_w}-+-{'-' * cnt_w}-+-{'-' * name_w}-+-{'-' * id_w}"
                     self.console.write_line(hdr)
                     self.console.write_line(sep)
@@ -113,7 +113,7 @@ class InventoryScene(Scene):
                             q_txt = "-"
                             adj_txt = str(it.price).rjust(price_w)
                         self.console.write_line(
-                            f"{adj_txt} | {str(cnt).rjust(cnt_w)} | {str(it.name).ljust(name_w)} | {str(it.id).ljust(id_w)}  q:{q_txt}"
+                            f"{adj_txt} | {str(cnt).rjust(cnt_w)} | {str(it.name).ljust(name_w)} | {str(it.id).ljust(id_w)}  качество={q_txt}"
                         )
                 # help for advanced items
                 self.console.write_line("")
@@ -126,7 +126,7 @@ class InventoryScene(Scene):
                 name_w = max((len(str(it.name)) for it in sorted_by_price), default=4)
                 id_w = max((len(str(it.id)) for it in sorted_by_price), default=2)
 
-                hdr = f"{'Price'.rjust(price_w)} | {'Name'.ljust(name_w)} | {'ID'.ljust(id_w)}"
+                hdr = f"{'Цена'.rjust(price_w)} | {'Название'.ljust(name_w)} | {'ID'.ljust(id_w)}"
                 sep = f"{'-' * price_w}-+-{'-' * name_w}-+-{'-' * id_w}"
                 self.console.write_line(hdr)
                 self.console.write_line(sep)
@@ -147,7 +147,7 @@ class InventoryScene(Scene):
                     name_w = max((len(str(it.name)) for it, _ in owned_sorted), default=4)
                     id_w = max((len(str(it.id)) for it, _ in owned_sorted), default=2)
 
-                    hdr = f"{'Price'.rjust(price_w)} | {'Qty'.rjust(cnt_w)} | {'Name'.ljust(name_w)} | {'ID'.ljust(id_w)}"
+                    hdr = f"{'Цена'.rjust(price_w)} | {'Кол-во'.rjust(cnt_w)} | {'Название'.ljust(name_w)} | {'ID'.ljust(id_w)}"
                     sep = f"{'-' * price_w}-+-{'-' * cnt_w}-+-{'-' * name_w}-+-{'-' * id_w}"
                     self.console.write_line(hdr)
                     self.console.write_line(sep)
@@ -179,7 +179,7 @@ class InventoryScene(Scene):
                     price_w = max((len(str(c.price)) for c, _ in owned_cases), default=5)
                     cnt_w = max((len(str(cnt)) for _, cnt in owned_cases), default=3)
 
-                    hdr = f"{'ID'.ljust(id_w)} | {'Name'.ljust(name_w)} | {'Price'.rjust(price_w)} | {'Qty'.rjust(cnt_w)}"
+                    hdr = f"{'ID'.ljust(id_w)} | {'Название'.ljust(name_w)} | {'Цена'.rjust(price_w)} | {'Кол-во'.rjust(cnt_w)}"
                     sep = f"{'-' * id_w}-+-{'-' * name_w}-+-{'-' * price_w}-+-{'-' * cnt_w}"
                     self.console.write_line(hdr)
                     self.console.write_line(sep)
@@ -196,7 +196,7 @@ class InventoryScene(Scene):
                 price_w = max((len(str(c.price)) for c in all_cases), default=5)
                 contains_w = max((len(str(len(c.items))) for c in all_cases), default=6)
 
-                hdr = f"{'ID'.ljust(id_w)} | {'Name'.ljust(name_w)} | {'Price'.rjust(price_w)} | {'Contains'.rjust(contains_w)}"
+                hdr = f"{'ID'.ljust(id_w)} | {'Название'.ljust(name_w)} | {'Цена'.rjust(price_w)} | {'Содержит'.rjust(contains_w)}"
                 sep = f"{'-' * id_w}-+-{'-' * name_w}-+-{'-' * price_w}-+-{'-' * contains_w}"
                 self.console.write_line(hdr)
                 self.console.write_line(sep)
